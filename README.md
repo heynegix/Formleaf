@@ -34,10 +34,6 @@ The editor uses `localStorage` for convenience. This is browser storage, not a s
 
 The UI is intentionally compact and tool-like. The Builder stays alongside the live Preview on larger screens and stacks naturally on smaller screens.
 
-## Live Demo
-
-The GitHub Pages deployment is configured at [heynegix.github.io/Formleaf](https://heynegix.github.io/Formleaf/).
-
 ## Getting Started
 
 Requirements: Node.js 24 or newer and npm.
@@ -73,7 +69,7 @@ The production files are written to `dist/`. The build is static and can be serv
 
 ## Deployment
 
-`.github/workflows/deploy.yml` builds the app and deploys `dist/` to GitHub Pages whenever `main` changes. The repository must have Pages configured to use **GitHub Actions** as its build and deployment source. The Vite base path is `/Formleaf/` for the project-site URL.
+`.github/workflows/deploy.yml` builds the app and deploys `dist/` to GitHub Pages whenever `main` changes. The repository owner must enable Pages with **GitHub Actions** as its build and deployment source in repository settings before the first deployment. The Vite base path is `/Formleaf/` for the project-site URL.
 
 ## Export Formats
 
