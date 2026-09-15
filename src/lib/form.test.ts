@@ -11,7 +11,7 @@ const testForm: FormDefinition = {
   fields: [
     { ...createField('text'), id: 'name', label: '<script>alert(1)</script>', placeholder: 'A & B', helpText: 'Use "your" name', required: true },
     { ...createField('number'), id: 'age', label: 'Age', min: 1, max: 120 },
-    { ...createField('select'), id: 'topic', label: 'Topic' },
+    { ...createField('select'), id: 'topic', label: 'Topic', options: [{ id: 'support', label: 'Support' }, { id: 'feedback', label: 'Feedback' }], defaultValue: 'feedback' },
   ],
 }
 
@@ -46,5 +46,6 @@ describe('Formleaf exports', () => {
     expect(html).not.toContain('<script>alert(1)</script>')
     expect(html).toContain('min="1"')
     expect(html).toContain('max="120"')
+    expect(html).toContain('<option value="feedback" selected>Feedback</option>')
   })
 })
