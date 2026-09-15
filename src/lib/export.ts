@@ -26,16 +26,17 @@ function renderField(field: FormField): string {
   const describedBy = field.helpText ? ` aria-describedby="${escapeHtml(field.id)}-help"` : ''
   const attributes = fieldAttributes(field) + describedBy
   const defaultValue = typeof field.defaultValue === 'string' ? field.defaultValue : ''
+  const defaultOptionId = (field.options ?? []).find((option) => option.id === defaultValue || option.label === defaultValue)?.id ?? ''
 
   if (field.type === 'textarea') {
     return `<div class="field">\n      <label for="${escapeHtml(field.id)}">${label}</label>\n      <textarea ${attributes}>${escapeHtml(defaultValue)}</textarea>${help}\n    </div>`
   }
   if (field.type === 'select') {
-    const options = (field.options ?? []).map((option) => `        <option value="${escapeHtml(option.id)}"${field.defaultValue === option.id ? ' selected' : ''}>${escapeHtml(option.label)}</option>`).join('\n')
+    const options = (field.options ?? []).map((option) => `        <option value="${escapeHtml(option.id)}"${defaultOptionId === option.id ? ' selected' : ''}>${escapeHtml(option.label)}</option>`).join('\n')
     return `<div class="field">\n      <label for="${escapeHtml(field.id)}">${label}</label>\n      <select ${attributes}>\n${options}\n      </select>${help}\n    </div>`
   }
   if (field.type === 'radio') {
-    const options = (field.options ?? []).map((option) => `      <label class="choice"><input type="radio" name="${escapeHtml(field.id)}" value="${escapeHtml(option.id)}"${field.required ? ' required' : ''}> ${escapeHtml(option.label)}</label>`).join('\n')
+    const options = (field.options ?? []).map((option) => `      <label class="choice"><input type="radio" name="${escapeHtml(field.id)}" value="${escapeHtml(option.id)}"${field.required ? ' required' : ''}${defaultOptionId === option.id ? ' checked' : ''}> ${escapeHtml(option.label)}</label>`).join('\n')
     return `<fieldset class="field"${describedBy}>\n      <legend>${label}</legend>\n${options}${help}\n    </fieldset>`
   }
   if (field.type === 'checkbox') {

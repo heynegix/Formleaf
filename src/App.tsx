@@ -26,6 +26,11 @@ function fieldById(form: FormDefinition, fieldId: string | null): FormField | un
   return fieldId ? form.fields.find((field) => field.id === fieldId) : undefined
 }
 
+function optionIdForValue(field: FormField, value: string | boolean | undefined): string {
+  if (typeof value !== 'string') return ''
+  return field.options?.find((option) => option.id === value || option.label === value)?.id ?? ''
+}
+
 async function copyText(value: string): Promise<boolean> {
   try {
     if (!navigator.clipboard) return false
@@ -296,7 +301,7 @@ function FieldEditor({ field, onChange, onClose }: FieldEditorProps) {
       <label className="field-control field-control-wide">Label<input value={field.label} maxLength={100} onChange={(event) => onChange({ label: event.target.value })} /></label>
       {field.type !== 'checkbox' && <label className="field-control field-control-wide">Placeholder<input value={field.placeholder} maxLength={200} onChange={(event) => onChange({ placeholder: event.target.value })} placeholder="Optional hint" /></label>}
       <label className="field-control field-control-wide">Help text<input value={field.helpText} maxLength={500} onChange={(event) => onChange({ helpText: event.target.value })} placeholder="Optional supporting text" /></label>
-      {field.type !== 'checkbox' && <label className="field-control">Default value<input value={typeof field.defaultValue === 'string' ? field.defaultValue : ''} maxLength={500} onChange={(event) => onChange({ defaultValue: event.target.value })} placeholder="Optional" /></label>}
+      {field.type !== 'checkbox' && <label className="field-control">Default value{(field.type === 'select' || field.type === 'radio') ? <select value={optionIdForValue(field, field.defaultValue)} onChange={(event) => onChange({ defaultValue: event.target.value || undefined })}><option value="">None</option>{(field.options ?? []).map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select> : <input value={typeof field.defaultValue === 'string' ? field.defaultValue : ''} maxLength={500} onChange={(event) => onChange({ defaultValue: event.target.value })} placeholder="Optional" />}</label>}
       {field.type === 'checkbox' && <label className="toggle-control"><input type="checkbox" checked={field.defaultValue === true} onChange={(event) => onChange({ defaultValue: event.target.checked })} /><span><strong>Checked by default</strong><small>Use sparingly for consent or opt-in fields.</small></span></label>}
       <label className="toggle-control"><input type="checkbox" checked={field.required} onChange={(event) => onChange({ required: event.target.checked })} /><span><strong>Required field</strong><small>Users must complete this before submitting.</small></span></label>
       {field.type === 'number' && <><label className="field-control">Min<input type="number" value={field.min ?? ''} onChange={(event) => onChange({ min: event.target.value === '' ? undefined : Number(event.target.value) })} /></label><label className="field-control">Max<input type="number" value={field.max ?? ''} onChange={(event) => onChange({ max: event.target.value === '' ? undefined : Number(event.target.value) })} /></label></>}
@@ -309,11 +314,12 @@ type PreviewFieldProps = { field: FormField; value: string | boolean; onChange: 
 
 function PreviewField({ field, value, onChange }: PreviewFieldProps) {
   const helpId = `${field.id}-help`
+  const optionValue = optionIdForValue(field, value)
   const common = { id: field.id, name: field.id, required: field.required, 'aria-describedby': field.helpText ? helpId : undefined }
   const label = <label htmlFor={field.id}>{field.label || 'Untitled field'}</label>
   if (field.type === 'textarea') return <div className="preview-field">{label}<textarea {...common} value={String(value)} placeholder={field.placeholder} onChange={(event) => onChange(event.target.value)} />{field.helpText && <small id={helpId}>{field.helpText}</small>}</div>
-  if (field.type === 'select') return <div className="preview-field">{label}<select {...common} value={String(value)} onChange={(event) => onChange(event.target.value)}><option value="">Select an option…</option>{(field.options ?? []).map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select>{field.helpText && <small id={helpId}>{field.helpText}</small>}</div>
-  if (field.type === 'radio') return <fieldset className="preview-field choice-field"><legend>{field.label || 'Untitled field'}</legend>{(field.options ?? []).map((option) => <label key={option.id}><input type="radio" name={field.id} value={option.id} checked={value === option.id} required={field.required && value === ''} onChange={(event) => onChange(event.target.value)} />{option.label}</label>)}{field.helpText && <small id={helpId}>{field.helpText}</small>}</fieldset>
+  if (field.type === 'select') return <div className="preview-field">{label}<select {...common} value={optionValue} onChange={(event) => onChange(event.target.value)}><option value="">Select an option…</option>{(field.options ?? []).map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select>{field.helpText && <small id={helpId}>{field.helpText}</small>}</div>
+  if (field.type === 'radio') return <fieldset className="preview-field choice-field"><legend>{field.label || 'Untitled field'}</legend>{(field.options ?? []).map((option) => <label key={option.id}><input type="radio" name={field.id} value={option.id} checked={optionValue === option.id} required={field.required && optionValue === ''} onChange={(event) => onChange(event.target.value)} />{option.label}</label>)}{field.helpText && <small id={helpId}>{field.helpText}</small>}</fieldset>
   if (field.type === 'checkbox') return <div className="preview-field preview-checkbox"><label><input type="checkbox" {...common} checked={Boolean(value)} onChange={(event) => onChange(event.target.checked)} />{field.label || 'Untitled field'}</label>{field.helpText && <small id={helpId}>{field.helpText}</small>}</div>
   return <div className="preview-field">{label}<input {...common} type={field.type} value={String(value)} placeholder={field.placeholder} min={field.min} max={field.max} onChange={(event) => onChange(event.target.value)} />{field.helpText && <small id={helpId}>{field.helpText}</small>}</div>
 }
