@@ -1,4 +1,5 @@
-import { FIELD_TYPES, type FieldType, type FormDefinition, type FormField, type FieldOption } from '../types'
+import { CURRENT_FORM_VERSION, FIELD_TYPES, type FieldType, type FormDefinition, type FormField, type FieldOption } from '../types'
+import { migrateFormDefinition } from './migrations'
 
 const MAX_JSON_LENGTH = 200_000
 const MAX_FIELDS = 100
@@ -49,16 +50,20 @@ function validateField(value: unknown): value is FormField {
 }
 
 export function validateFormDefinition(value: unknown): ValidationResult {
-  if (!isRecord(value) || value.version !== 1 || !validText(value.title, true) || !validText(value.description) || !validText(value.submitLabel, true)) {
+  const migration = migrateFormDefinition(value)
+  if (!migration.success) return migration
+  const migrated = migration.data
+
+  if (!isRecord(migrated) || migrated.version !== CURRENT_FORM_VERSION || !validText(migrated.title, true) || !validText(migrated.description) || !validText(migrated.submitLabel, true)) {
     return { success: false, error: 'Invalid Formleaf JSON.' }
   }
-  if (!Array.isArray(value.fields) || value.fields.length > MAX_FIELDS || !value.fields.every(validateField)) {
+  if (!Array.isArray(migrated.fields) || migrated.fields.length > MAX_FIELDS || !migrated.fields.every(validateField)) {
     return { success: false, error: 'Invalid Formleaf JSON: check the fields and their settings.' }
   }
-  const ids = value.fields.map((field) => field.id)
+  const ids = migrated.fields.map((field) => field.id)
   if (new Set(ids).size !== ids.length) return { success: false, error: 'Invalid Formleaf JSON: field IDs must be unique.' }
 
-  return { success: true, data: value as FormDefinition }
+  return { success: true, data: migrated as FormDefinition }
 }
 
 export function parseFormJson(json: string): ValidationResult {

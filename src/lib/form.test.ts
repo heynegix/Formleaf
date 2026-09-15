@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createField, DEFAULT_FORM, type FormDefinition } from '../types'
+import { createField, CURRENT_FORM_VERSION, DEFAULT_FORM, type FormDefinition } from '../types'
 import { generateHtml, generateJson } from './export'
 import { parseFormJson, validateFormDefinition } from './validation'
 
@@ -29,6 +29,56 @@ describe('Formleaf data validation', () => {
 
   it('rejects oversized JSON', () => {
     expect(parseFormJson('x'.repeat(200_001)).success).toBe(false)
+  })
+
+  it('migrates version zero aliases and string options', () => {
+    const legacy = {
+      version: 0,
+      title: 'Legacy form',
+      description: '',
+      submitButtonText: 'Send now',
+      fields: [{
+        id: 'topic',
+        type: 'select',
+        label: 'Topic',
+        placeholder: '',
+        required: false,
+        help: 'Choose a topic',
+        default: 'Feedback',
+        options: ['Support', { id: 'feedback', label: 'Feedback' }],
+      }],
+    }
+
+    const result = parseFormJson(JSON.stringify(legacy))
+    expect(result).toEqual({
+      success: true,
+      data: {
+        version: CURRENT_FORM_VERSION,
+        title: 'Legacy form',
+        description: '',
+        submitLabel: 'Send now',
+        fields: [{
+          id: 'topic',
+          type: 'select',
+          label: 'Topic',
+          placeholder: '',
+          required: false,
+          helpText: 'Choose a topic',
+          defaultValue: 'Feedback',
+          options: [
+            { id: 'legacy-option-1-1', label: 'Support' },
+            { id: 'feedback', label: 'Feedback' },
+          ],
+        }],
+      },
+    })
+  })
+
+  it('rejects unsupported future schema versions', () => {
+    const result = parseFormJson(JSON.stringify({ ...testForm, version: 99 }))
+    expect(result.success).toBe(false)
+    if (result.success) return
+    expect(result.error).toContain('Unsupported Formleaf JSON version')
   })
 })
 

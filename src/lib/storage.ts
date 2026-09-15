@@ -1,5 +1,5 @@
 import { DEFAULT_FORM, type FormDefinition } from '../types'
-import { validateFormDefinition } from './validation'
+import { parseFormJson } from './validation'
 
 export const STORAGE_KEY = 'formleaf:form:v1'
 
@@ -8,7 +8,7 @@ export function loadSavedForm(storage: Storage | undefined = typeof localStorage
   try {
     const raw = storage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT_FORM
-    const result = validateFormDefinition(JSON.parse(raw) as unknown)
+    const result = parseFormJson(raw)
     return result.success ? result.data : DEFAULT_FORM
   } catch {
     return DEFAULT_FORM

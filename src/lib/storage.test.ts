@@ -17,4 +17,21 @@ describe('local persistence', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, fields: [] }))
     expect(loadSavedForm()).toEqual(DEFAULT_FORM)
   })
+
+  it('restores a legacy version zero form through migration', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      version: 0,
+      title: 'Legacy form',
+      description: '',
+      submitButtonText: 'Send',
+      fields: [],
+    }))
+
+    expect(loadSavedForm()).toMatchObject({
+      version: 1,
+      title: 'Legacy form',
+      submitLabel: 'Send',
+      fields: [],
+    })
+  })
 })

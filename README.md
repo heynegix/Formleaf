@@ -18,8 +18,9 @@ Formleaf follows a local-first principle: create locally, export anywhere. It do
 - Text, email, number, textarea, select, radio, checkbox, date, URL, and telephone fields.
 - Field labels, placeholders, help text, defaults, required state, options, and number limits.
 - Edit, duplicate, delete, and move fields up or down.
+- Reorder Select and Radio options with accessible up/down controls.
 - Standalone HTML export with embedded CSS.
-- Versioned JSON export and validated JSON import, including file upload.
+- Versioned JSON export and validated JSON import, including legacy schema migration and file upload.
 - Automatic localStorage persistence with safe recovery from invalid local data.
 - Example contact form and reset/new-form flow with confirmation.
 - Keyboard-friendly semantic controls, visible focus states, and responsive layouts.
@@ -61,7 +62,7 @@ The application is a Vite + React + TypeScript single-page app. State is kept in
 
 ## Testing
 
-Vitest and React Testing Library cover the core data paths: field creation, editing, duplication and deletion, preview submission feedback, JSON validation, HTML escaping, export/import round trips, oversized or malformed data, and localStorage recovery.
+Vitest and React Testing Library cover the core data paths: field creation, editing, duplication and deletion, field and option reordering, preview submission feedback, JSON validation and migration, HTML escaping, export/import round trips, oversized or malformed data, and localStorage recovery.
 
 ## Build
 
@@ -104,6 +105,7 @@ src/
   App.tsx              Builder, Preview, dialogs, and editor UI
   types.ts             Form data model and field factories
   lib/export.ts        Escaped HTML and JSON generation
+  lib/migrations.ts    Backward-compatible JSON schema migrations
   lib/validation.ts    Runtime JSON validation
   lib/storage.ts       Safe localStorage persistence
   *.test.ts(x)         Data and interaction tests

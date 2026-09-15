@@ -88,7 +88,7 @@ select { appearance: auto; }
 .options-editor { margin-top: 24px; padding-top: 21px; border-top: 1px solid #29352c; }
 .options-heading h3 { margin: 0; font-size: .8rem; }
 .option-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
-.option-row input { flex: 1; }
+.option-row input { min-width: 0; flex: 1; }
 .option-index { display: grid; width: 23px; height: 23px; place-items: center; border-radius: 50%; color: #94a99a; background: #203024; font-size: .68rem; }
 
 .preview-heading { align-items: center; }
