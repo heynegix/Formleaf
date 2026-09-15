@@ -44,4 +44,27 @@ describe('Formleaf builder', () => {
     await user.click(screen.getByRole('button', { name: 'Send message' }))
     expect(screen.getByRole('status')).toHaveTextContent('Preview only')
   })
+
+  it('moves select and radio options up and down', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const typeSelect = screen.getByLabelText('Field type')
+
+    await user.selectOptions(typeSelect, 'select')
+    await user.click(screen.getByRole('button', { name: /add field/i }))
+    let optionInputs = screen.getAllByRole('textbox', { name: /^Option [12]$/ })
+    await user.clear(optionInputs[0])
+    await user.type(optionInputs[0], 'Support')
+    await user.click(screen.getByRole('button', { name: 'Move option 1 down' }))
+    optionInputs = screen.getAllByRole('textbox', { name: /^Option [12]$/ })
+    expect(optionInputs[0]).toHaveValue('Option 2')
+    expect(optionInputs[1]).toHaveValue('Support')
+
+    await user.selectOptions(typeSelect, 'radio')
+    await user.click(screen.getByRole('button', { name: /add field/i }))
+    await user.click(screen.getByRole('button', { name: 'Move option 2 up' }))
+    optionInputs = screen.getAllByRole('textbox', { name: /^Option [12]$/ })
+    expect(optionInputs[0]).toHaveValue('Option 2')
+    expect(optionInputs[1]).toHaveValue('Option 1')
+  })
 })
