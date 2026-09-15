@@ -11,6 +11,8 @@ export const FIELD_TYPES = [
   'tel',
 ] as const
 
+export const CURRENT_FORM_VERSION = 1 as const
+
 export type FieldType = (typeof FIELD_TYPES)[number]
 
 export type FieldOption = {
@@ -32,7 +34,7 @@ export type FormField = {
 }
 
 export type FormDefinition = {
-  version: 1
+  version: typeof CURRENT_FORM_VERSION
   title: string
   description: string
   submitLabel: string
@@ -53,7 +55,7 @@ export const FIELD_LABELS: Record<FieldType, string> = {
 }
 
 export const DEFAULT_FORM: FormDefinition = {
-  version: 1,
+  version: CURRENT_FORM_VERSION,
   title: 'Untitled Form',
   description: '',
   submitLabel: 'Submit',
