@@ -40,7 +40,7 @@ The GitHub Pages deployment is configured at [heynegix.github.io/Formleaf](https
 
 ## Getting Started
 
-Requirements: Node.js 20 or newer and npm.
+Requirements: Node.js 24 or newer and npm.
 
 ```bash
 npm install
