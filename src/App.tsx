@@ -295,6 +295,15 @@ function FieldEditor({ field, onChange, onClose }: FieldEditorProps) {
   function removeOption(optionId: string) {
     onChange({ options: field.options?.filter((option) => option.id !== optionId) })
   }
+  function moveOption(optionId: string, direction: -1 | 1) {
+    const options = field.options ?? []
+    const index = options.findIndex((option) => option.id === optionId)
+    const nextIndex = index + direction
+    if (index < 0 || nextIndex < 0 || nextIndex >= options.length) return
+    const reordered = [...options]
+    ;[reordered[index], reordered[nextIndex]] = [reordered[nextIndex], reordered[index]]
+    onChange({ options: reordered })
+  }
   return <div className="card editor-card" aria-labelledby="editor-heading">
     <div className="card-heading"><div><p className="eyebrow">Selected field</p><h2 id="editor-heading">{FIELD_LABELS[field.type]} settings</h2></div><button className="icon-button" type="button" onClick={onClose} aria-label="Close field settings">×</button></div>
     <div className="editor-grid">
@@ -306,7 +315,7 @@ function FieldEditor({ field, onChange, onClose }: FieldEditorProps) {
       <label className="toggle-control"><input type="checkbox" checked={field.required} onChange={(event) => onChange({ required: event.target.checked })} /><span><strong>Required field</strong><small>Users must complete this before submitting.</small></span></label>
       {field.type === 'number' && <><label className="field-control">Min<input type="number" value={field.min ?? ''} onChange={(event) => onChange({ min: event.target.value === '' ? undefined : Number(event.target.value) })} /></label><label className="field-control">Max<input type="number" value={field.max ?? ''} onChange={(event) => onChange({ max: event.target.value === '' ? undefined : Number(event.target.value) })} /></label></>}
     </div>
-    {(field.type === 'select' || field.type === 'radio') && <div className="options-editor"><div className="options-heading"><div><h3>Options</h3><p>Give people clear choices.</p></div><button className="text-button" type="button" onClick={() => onChange({ options: [...(field.options ?? []), createOption(`Option ${(field.options?.length ?? 0) + 1}`)] })}>+ Add option</button></div>{(field.options ?? []).map((option, index) => <div className="option-row" key={option.id}><span className="option-index">{index + 1}</span><input aria-label={`Option ${index + 1}`} value={option.label} maxLength={200} onChange={(event) => updateOption(option.id, event.target.value)} /><button className="icon-button danger-icon" type="button" onClick={() => removeOption(option.id)} aria-label={`Delete option ${index + 1}`} disabled={(field.options?.length ?? 0) <= 1}>×</button></div>)}</div>}
+    {(field.type === 'select' || field.type === 'radio') && <div className="options-editor"><div className="options-heading"><div><h3>Options</h3><p>Give people clear choices.</p></div><button className="text-button" type="button" onClick={() => onChange({ options: [...(field.options ?? []), createOption(`Option ${(field.options?.length ?? 0) + 1}`)] })}>+ Add option</button></div>{(field.options ?? []).map((option, index) => <div className="option-row" key={option.id}><span className="option-index">{index + 1}</span><input aria-label={`Option ${index + 1}`} value={option.label} maxLength={200} onChange={(event) => updateOption(option.id, event.target.value)} /><button className="icon-button" type="button" onClick={() => moveOption(option.id, -1)} aria-label={`Move option ${index + 1} up`} disabled={index === 0}>↑</button><button className="icon-button" type="button" onClick={() => moveOption(option.id, 1)} aria-label={`Move option ${index + 1} down`} disabled={index === (field.options?.length ?? 0) - 1}>↓</button><button className="icon-button danger-icon" type="button" onClick={() => removeOption(option.id)} aria-label={`Delete option ${index + 1}`} disabled={(field.options?.length ?? 0) <= 1}>×</button></div>)}</div>}
   </div>
 }
 
